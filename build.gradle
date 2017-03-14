@@ -1,6 +1,6 @@
 group = 'com.nablarch.framework'
 version = '1.1.1'
-description = 'どこにも行き場のないクラスたち'
+description = '共通的なデータベースアクセスを行うライブラリ'
 
 buildscript {
   repositories {
@@ -28,8 +28,10 @@ dependencies {
   compile "com.nablarch.framework:nablarch-core:${nablarchCoreVersion}"
 
   testCompile 'org.jmockit:jmockit:1.13'
-  testCompile 'junit:junit:4.10'
-  testCompile 'com.nablarch.dev:nablarch-test-support:0.0.5'
+  testCompile 'junit:junit:4.12'
+  
+  testRuntime "com.nablarch.framework:nablarch-core-repository:${nablarchCoreRepositoryVersion}"
+  testCompile 'com.nablarch.dev:nablarch-test-support:0.0.7'
   testRuntime 'org.slf4j:slf4j-nop:1.7.12' // for cobertura
 }
 
@@ -96,6 +98,6 @@ tasks.sonarRunner {
 }
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '2.4'
+  gradleVersion = '2.13'
 }
 

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+データベース接続用の設定ファイル
+-->
+<component-configuration
+    xmlns="http://tis.co.jp/nablarch/component-configuration"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration ../../../../../main/resources/component-configuration.xsd">
+
+    <import file="db-default.xml" />
+
+    <component name="DbConnectionManagementHandler" class="nablarch.common.handler.DbConnectionManagementHandler">
+        <property name="connectionFactory" ref="connectionFactory" />
+        <property name="connectionName" value="TEST_DB_NAME" />
+    </component>
+</component-configuration>
