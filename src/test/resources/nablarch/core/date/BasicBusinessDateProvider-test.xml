@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration
+    xmlns="http://tis.co.jp/nablarch/component-configuration"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration ../../../../../../Nablarch/resources/component-configuration.xsd">
+
+    <import file="db-default.xml"/>
+
+  <!-- DbManagerの設定 -->
+  <component name="transaction"
+      class="nablarch.core.db.transaction.SimpleDbTransactionManager">
+  </component>
+
+  <component name="statementFactory"
+      class="nablarch.core.db.statement.BasicStatementFactory" />
+
+   <!-- 業務日付コンポーネントの設定 -->
+  <component name="businessDateProvider"
+      class="nablarch.core.date.BasicBusinessDateProvider">
+    <property name="tableName" value="BUSINESS_DATE" />
+    <property name="segmentColumnName" value="SEGMENT" />
+    <property name="dateColumnName" value="BIZ_DATE" />
+    <property name="defaultSegment" value="00" />
+    <property name="dbTransactionManager" ref="hogehogeTransaction" />
+  </component>
+
+  <!-- トランザクション名を変更したSimpleDbTransactionManager -->
+  <component name="hogehogeTransaction" class="nablarch.core.db.transaction.SimpleDbTransactionManager">
+    <property name="dbTransactionName" value="hogehoge" />
+  </component>
+
+</component-configuration>

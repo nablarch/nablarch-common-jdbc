@@ -25,6 +25,7 @@ public class DbConnectionManagementHandlerTest {
 
     @Before
     public void setup() {
+        DbConnectionContext.removeConnection("connection");
         target.setConnectionFactory(connectionFactory);
         target.setConnectionName("connection");
     }
@@ -124,7 +125,8 @@ public class DbConnectionManagementHandlerTest {
 
     @Test
     public void testHandleOutbound() {
-        
+
+        target.handleInbound(context);
         assertTrue(target.handleOutbound(context).isSuccess());
 
     }

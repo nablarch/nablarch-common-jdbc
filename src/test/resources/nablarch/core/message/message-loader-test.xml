@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component-configuration xmlns="http://tis.co.jp/nablarch/component-configuration"
+                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xsi:schemaLocation="http://tis.co.jp/nablarch/component-configuration ../../../../../../Nablarch/resources/component-configuration.xsd">
+
+    <import file="db-default.xml"/>
+
+    <!-- DbManagerの設定 -->
+    <component name="dbManager" class="nablarch.core.db.transaction.SimpleDbTransactionManager">
+        <property name="dbTransactionName" value="message"/>
+    </component>
+    <!--
+    デフォルトのIStatementFactory実装クラスの設定
+    IConnectionFactoryのpropertyに対する設定がない限り、本設定が適用される。
+    -->
+    <component name="statementFactory"
+               class="nablarch.core.db.statement.BasicStatementFactory">
+	    <property name="sqlLoader">
+	    	<component class="nablarch.core.db.statement.BasicSqlLoader"/>
+	    </property>
+    </component>
+
+    <component name="stringResourceLoader"
+               class="nablarch.core.message.BasicStringResourceLoader">
+        <!-- メッセージリソーステーブル名 -->
+        <property name="tableName" value="TEST_MESSAGE"/>
+        <!-- メッセージリソーステーブル IDカラム名 -->
+        <property name="idColumnName" value="MESSAGE_ID"/>
+        <!-- メッセージリソーステーブル 言語カラム名 -->
+        <property name="langColumnName" value="LANG"/>
+        <!-- メッセージリソーステーブル メッセージカラム名 -->
+        <property name="valueColumnName" value="MESSAGE"/>
+    </component>
+</component-configuration>
