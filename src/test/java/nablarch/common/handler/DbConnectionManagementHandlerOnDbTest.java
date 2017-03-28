@@ -477,7 +477,7 @@ public class DbConnectionManagementHandlerOnDbTest {
 
     /**
      * 既に使用されているコネクション名が指定された場合は、既に使用されています例外が発生すること
-     * また、この場合には{@link ConnectionFactory#getConnection}が呼び出されないことを検証する。
+     * また、この場合には{@link ConnectionFactory#getConnection(String)}が呼び出されないことを検証する。
      */
     @Test
     public void connectionNameAlreadyUsed(@Mocked TransactionManagerConnection mockConnection) throws Exception {
