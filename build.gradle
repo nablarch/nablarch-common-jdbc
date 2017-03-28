@@ -31,7 +31,6 @@ dependencies {
   testCompile 'junit:junit:4.12'
   
   testRuntime "com.nablarch.framework:nablarch-core-repository:${nablarchCoreRepositoryVersion}"
-  testCompile 'com.nablarch.dev:nablarch-test-support:0.0.7'
   testRuntime 'org.slf4j:slf4j-nop:1.7.12' // for cobertura
 }
 
@@ -45,13 +44,6 @@ test {
   )
 
   ignoreFailures = true
-
-  doFirst {
-    def logDir = new File('log')
-    if (!logDir.exists()) {
-      assert logDir.mkdirs()
-    }
-  }
 
   cobertura {
     coverageSourceDirs = ["${projectDir}/src/main/java/"]

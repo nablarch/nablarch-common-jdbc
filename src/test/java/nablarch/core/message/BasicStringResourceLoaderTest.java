@@ -265,17 +265,4 @@ public class BasicStringResourceLoaderTest {
                     .indexOf("10002") > 0);
         }
     }
-
-    public void hoge() {
-        try {
-            anyBussinessLogic();
-        } catch (ApplicationException e) {
-            // エラーログを出力する。
-            LOGGER.logError(e.getMessage());
-        }
-    }
-
-    public static void anyBussinessLogic() {
-
-    }
 }
