@@ -27,15 +27,20 @@
     </dependency>
 
     <dependency>
+      <groupId>org.jmockit</groupId>
+      <artifactId>jmockit</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
-      <version>1.4.191</version>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>com.nablarch.dev</groupId>
       <artifactId>nablarch-test-support</artifactId>
-      <version>0.0.8</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
