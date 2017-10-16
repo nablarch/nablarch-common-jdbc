@@ -1,7 +1,7 @@
 package nablarch.common.handler;
 
+import mockit.Expectations;
 import mockit.Mocked;
-import mockit.NonStrictExpectations;
 import mockit.Verifications;
 import nablarch.core.db.connection.ConnectionFactory;
 import nablarch.core.db.connection.DbConnectionContext;
@@ -34,7 +34,7 @@ public class DbConnectionManagementHandlerTest {
     public void testHandle() {
         {
             // 正常系
-            new NonStrictExpectations() {{
+            new Expectations() {{
                 context.handleNext(null);
                 result = new Result.Success();
             }};        
@@ -50,7 +50,7 @@ public class DbConnectionManagementHandlerTest {
 
         {
             // コンテキストにすでにコネクションが登録されていた場合
-            new NonStrictExpectations() {{
+            new Expectations() {{
                 context.handleNext(null);
                 result = new Result.Success();
             }};        
@@ -74,7 +74,7 @@ public class DbConnectionManagementHandlerTest {
 
         {
             // 後続のハンドラで RuntimeException
-            new NonStrictExpectations() {{
+            new Expectations() {{
                 context.handleNext(null);
                 result = new RuntimeException("test");
             }};        
@@ -93,7 +93,7 @@ public class DbConnectionManagementHandlerTest {
 
         {
             // 後続のハンドラで Error
-            new NonStrictExpectations() {{
+            new Expectations() {{
                 context.handleNext(null);
                 result = new Error("test");
             }};        
