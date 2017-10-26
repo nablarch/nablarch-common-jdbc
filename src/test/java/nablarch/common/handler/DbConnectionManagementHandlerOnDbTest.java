@@ -26,7 +26,6 @@ import org.junit.runner.RunWith;
 
 import mockit.Expectations;
 import mockit.Mocked;
-import mockit.NonStrictExpectations;
 import mockit.Verifications;
 
 /**
@@ -486,8 +485,9 @@ public class DbConnectionManagementHandlerOnDbTest {
 
         // テスト対象クラスを生成
         final ConnectionFactory factory = repositoryResource.getComponent("connectionFactory");
-        new NonStrictExpectations(factory) {{
+        new Expectations(factory) {{
             factory.getConnection(TRANSACTION_NAME);
+            minTimes = 0;
         }};
 
 
