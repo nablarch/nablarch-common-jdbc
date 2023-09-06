@@ -81,28 +81,15 @@ public class DbConnectionManagementHandler implements Handler<Object, Object>, I
 
         before();
 
-        Throwable throwable = null;
         try {
             return ctx.handleNext(inputData);
-        } catch (RuntimeException e) {
-            throwable = e;
-            throw e;
-        } catch (Error e) {
-            throwable = e;
-            throw e;
         } finally {
             try {
                 after();
             } catch (RuntimeException e) {
-                writeWarnLog(throwable);
-                if(throwable == null) {
-                    throw e;
-                }
+                writeWarnLog(e);
             } catch (Error e) {
-                writeWarnLog(throwable);
-                if(throwable == null) {
-                    throw e;
-                }
+                writeWarnLog(e);
             }
         }
     }
