@@ -1,7 +1,7 @@
 package nablarch.common.handler;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.text.MessageFormat;
@@ -51,7 +51,7 @@ public class DbConnectionManagementHandlerOnDbTest {
     /**
      * {@link DbConnectionManagementHandler#handle(Object, nablarch.fw.ExecutionContext)}のテスト
      *
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void normalCase() throws Exception {
@@ -97,7 +97,7 @@ public class DbConnectionManagementHandlerOnDbTest {
      * ケース内容:ハンドラでRuntimeExceptionが発生した場合<br/>
      * 期待値:ハンドラで発生したRuntimeExceptionがthrowされてくる<br/>
      *
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void handle_RuntimeException() throws Exception {
@@ -141,7 +141,7 @@ public class DbConnectionManagementHandlerOnDbTest {
      * ケース内容:DbConnectionManagementHandlerのfinally句でRuntimeExceptionが発生した場合。<br/>
      * 期待値:例外がスローされず、正常終了する。<br/>
      *
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void finally_RuntimeException() throws Exception {
@@ -184,7 +184,7 @@ public class DbConnectionManagementHandlerOnDbTest {
      * ケース内容:ハンドラでErrorが発生した場合<br/>
      * 期待値:ハンドラで発生したErrorがthrowされてくる。<br/>
      *
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void handle_Error() throws Exception {
@@ -221,7 +221,7 @@ public class DbConnectionManagementHandlerOnDbTest {
      * ケース内容:DbConnectionManagementHandlerのfinally句でErrorが発生した場合。<br/>
      * 期待値:Errorはスローされず正常終了する。<br/>
      *
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void finally_Error() throws Exception {
@@ -269,7 +269,7 @@ public class DbConnectionManagementHandlerOnDbTest {
      * <li>finally句で発生した例外はワーニングレベルでログ出力されていることを確認する。</li>
      * </ol>
      *
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void handle_finally_RuntimeException() throws Exception {
@@ -323,7 +323,7 @@ public class DbConnectionManagementHandlerOnDbTest {
      * <li>finally句で発生した例外はワーニングレベルでログ出力されていることを確認する。</li>
      * </ol>
      *
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void handle_Error_finally_RuntimeException() throws Exception {
@@ -377,7 +377,7 @@ public class DbConnectionManagementHandlerOnDbTest {
      * <li>finally句で発生した例外はワーニングレベルでログ出力されていることを確認する。</li>
      * </ol>
      *
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void handle_finally_Error() throws Exception {
@@ -430,7 +430,7 @@ public class DbConnectionManagementHandlerOnDbTest {
      * <li>finally句で発生した例外はワーニングレベルでログ出力されていることを確認する。</li>
      * </ol>
      *
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void handle_RuntimeException_finally_Error() throws Exception {
@@ -529,6 +529,7 @@ public class DbConnectionManagementHandlerOnDbTest {
                     "^.*WARN.*DbConnectionManagementHandler.*failed in the "
                             + "application process\\..*" + message + ".*$")) {
                 writeLog = true;
+                break;
             }
         }
         assertThat("元例外がWARNレベルでログに出力されていること", writeLog, is(true));
@@ -560,6 +561,7 @@ public class DbConnectionManagementHandlerOnDbTest {
             DbConnectionContext.getConnection(TRANSACTION_NAME);
             fail("does not run.");
         } catch (IllegalArgumentException e) {
+            // NOP
         }
     }
 
