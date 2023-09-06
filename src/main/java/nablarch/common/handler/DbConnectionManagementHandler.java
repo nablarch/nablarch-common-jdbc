@@ -111,6 +111,7 @@ public class DbConnectionManagementHandler implements Handler<Object, Object>, I
     /**
      * 復路処理を行う。
      *
+     * <p>
      * {@link DbConnectionContext}からデータベース接続を削除し、リソースの開放処理を行う。
      */
     public void after() {
