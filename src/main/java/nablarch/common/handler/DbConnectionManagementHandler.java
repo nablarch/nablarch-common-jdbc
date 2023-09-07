@@ -81,24 +81,15 @@ public class DbConnectionManagementHandler implements Handler<Object, Object>, I
 
         before();
 
-        Throwable throwable = null;
         try {
             return ctx.handleNext(inputData);
-        } catch (RuntimeException e) {
-            throwable = e;
-            throw e;
-        } catch (Error e) {
-            throwable = e;
-            throw e;
         } finally {
             try {
                 after();
             } catch (RuntimeException e) {
-                writeWarnLog(throwable);
-                throw e;
+                writeWarnLog(e);
             } catch (Error e) {
-                writeWarnLog(throwable);
-                throw e;
+                writeWarnLog(e);
             }
         }
     }
@@ -120,6 +111,7 @@ public class DbConnectionManagementHandler implements Handler<Object, Object>, I
     /**
      * 復路処理を行う。
      *
+     * <p>
      * {@link DbConnectionContext}からデータベース接続を削除し、リソースの開放処理を行う。
      */
     public void after() {

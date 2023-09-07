@@ -1,7 +1,7 @@
 package nablarch.common.handler;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.text.MessageFormat;
@@ -51,7 +51,7 @@ public class DbConnectionManagementHandlerOnDbTest {
     /**
      * {@link DbConnectionManagementHandler#handle(Object, nablarch.fw.ExecutionContext)}のテスト
      *
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void normalCase() throws Exception {
@@ -97,7 +97,7 @@ public class DbConnectionManagementHandlerOnDbTest {
      * ケース内容:ハンドラでRuntimeExceptionが発生した場合<br/>
      * 期待値:ハンドラで発生したRuntimeExceptionがthrowされてくる<br/>
      *
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void handle_RuntimeException() throws Exception {
@@ -129,6 +129,8 @@ public class DbConnectionManagementHandlerOnDbTest {
             assertThat(e.getMessage(), is("error!!"));
         }
 
+        assertWarnLogCountIs(0);
+
         // 例外が発生してもスレッドコンテキストから削除されていることを確認
         assertRemoveConnection();
     }
@@ -137,9 +139,9 @@ public class DbConnectionManagementHandlerOnDbTest {
      * {@link DbConnectionManagementHandler#handle(Object, nablarch.fw.ExecutionContext)}の異常系テスト。
      * <br/>
      * ケース内容:DbConnectionManagementHandlerのfinally句でRuntimeExceptionが発生した場合。<br/>
-     * 期待値:finally句で発生した例外がthrowされてくる。<br/>
+     * 期待値:例外がスローされず、正常終了する。<br/>
      *
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void finally_RuntimeException() throws Exception {
@@ -166,12 +168,11 @@ public class DbConnectionManagementHandlerOnDbTest {
             connection.terminate();
             result = new RuntimeException("terminate error!!!");
         }};
-        try {
-            handler.handle(null, context);
-            fail("does not run.");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), is("terminate error!!!"));
-        }
+
+        handler.handle(null, context);
+
+        assertWarnLogCountIs(1);
+        assertWarnLog("java.lang.RuntimeException: terminate error!!");
 
         // 例外が発生してもスレッドコンテキストから削除されていることを確認
         assertRemoveConnection();
@@ -183,7 +184,7 @@ public class DbConnectionManagementHandlerOnDbTest {
      * ケース内容:ハンドラでErrorが発生した場合<br/>
      * 期待値:ハンドラで発生したErrorがthrowされてくる。<br/>
      *
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void handle_Error() throws Exception {
@@ -193,7 +194,7 @@ public class DbConnectionManagementHandlerOnDbTest {
         List<Handler<?, ?>> handlers = new ArrayList<Handler<?, ?>>();
         handlers.add(new Handler<Object, Object>() {
             public Object handle(Object o, ExecutionContext context) {
-                throw new ArrayIndexOutOfBoundsException("hoge");
+                throw new OutOfMemoryError("hoge");
             }
         });
         ExecutionContext context = new ExecutionContext();
@@ -204,9 +205,11 @@ public class DbConnectionManagementHandlerOnDbTest {
         try {
             handler.handle(null, context);
             fail("does not run.");
-        } catch (Exception e) {
+        } catch (OutOfMemoryError e) {
             assertThat(e.getMessage(), is("hoge"));
         }
+
+        assertWarnLogCountIs(0);
 
         // 例外が発生してもスレッドコンテキストから削除されていることを確認
         assertRemoveConnection();
@@ -216,9 +219,9 @@ public class DbConnectionManagementHandlerOnDbTest {
      * {@link DbConnectionManagementHandler#handle(Object, nablarch.fw.ExecutionContext)}の異常系テスト。
      * <br/>
      * ケース内容:DbConnectionManagementHandlerのfinally句でErrorが発生した場合。<br/>
-     * 期待値:finally句で発生したErrorがthrowされてくる。<br/>
+     * 期待値:Errorはスローされず正常終了する。<br/>
      *
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void finally_Error() throws Exception {
@@ -247,14 +250,12 @@ public class DbConnectionManagementHandlerOnDbTest {
             result = new Error("error.");
         }};
 
-        try {
-            handler.handle(null, context);
-            fail("does not run.");
-        } catch (Error e) {
-            assertThat(e.getMessage(), is("error."));
-        }
+        handler.handle(null, context);
 
-        // 例外が発生してもスレッドコンテキストから削除されていることを確認
+        assertWarnLogCountIs(1);
+        assertWarnLog("java.lang.Error: error.");
+
+        // スレッドコンテキストから削除されていることを確認
         assertRemoveConnection();
     }
 
@@ -264,11 +265,11 @@ public class DbConnectionManagementHandlerOnDbTest {
      * ケース内容:ハンドラと、DbConnectionManagementHandlerのfinally句でRuntimeExceptionが発生した場合。<br/>
      * 期待値:
      * <ol>
-     * <li>finally句で発生した例外が送出されてくることを確認する。</li>
-     * <li>ハンドラで発生した例外はワーニングレベルでログ出力されていることを確認する。</li>
+     * <li>ハンドラで発生した例外が送出されてくることを確認する。</li>
+     * <li>finally句で発生した例外はワーニングレベルでログ出力されていることを確認する。</li>
      * </ol>
      *
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void handle_finally_RuntimeException() throws Exception {
@@ -301,12 +302,13 @@ public class DbConnectionManagementHandlerOnDbTest {
         try {
             handler.handle(null, context);
             fail("does not run.");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), is("terminate error!!!"));
+        } catch (NullPointerException e) {
+            assertThat(e.getMessage(), is("runtime error."));
         }
 
         // 元例外をアサート
-        assertWarnLog("java.lang.NullPointerException.*runtime error.");
+        assertWarnLogCountIs(1);
+        assertWarnLog("java.lang.RuntimeException: terminate error!!!");
 
         // 例外が発生してもスレッドコンテキストから削除されていることを確認
         assertRemoveConnection();
@@ -318,11 +320,11 @@ public class DbConnectionManagementHandlerOnDbTest {
      * ケース内容:ハンドラでErrorが発生し、DbConnectionManagementHandlerのfinally句でRuntimeExceptionが発生した場合。<br/>
      * 期待値:<br/>
      * <ol>
-     * <li>finally句で発生した例外が送出されてくることを確認する。</li>
-     * <li>ハンドラで発生した例外はワーニングレベルでログ出力されていることを確認する。</li>
+     * <li>ハンドラで発生した例外が送出されてくることを確認する。</li>
+     * <li>finally句で発生した例外はワーニングレベルでログ出力されていることを確認する。</li>
      * </ol>
      *
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void handle_Error_finally_RuntimeException() throws Exception {
@@ -355,12 +357,13 @@ public class DbConnectionManagementHandlerOnDbTest {
         try {
             handler.handle(null, context);
             fail("does not run.");
-        } catch (Exception e) {
-            assertThat(e.getMessage(), is("terminate error!!!"));
+        } catch (OutOfMemoryError e) {
+            assertThat(e.getMessage(), is("out of memory error."));
         }
 
         // 元例外をアサート
-        assertWarnLog("java.lang.OutOfMemoryError.*out of memory error.");
+        assertWarnLogCountIs(1);
+        assertWarnLog("java.lang.RuntimeException: terminate error!!!");
 
         // 例外が発生してもスレッドコンテキストから削除されていることを確認
         assertRemoveConnection();
@@ -372,11 +375,11 @@ public class DbConnectionManagementHandlerOnDbTest {
      * ケース内容:ハンドラと、DbConnectionManagementHandlerのfinally句でErrorが発生した場合。<br/>
      * 期待値:<br/>
      * <ol>
-     * <li>finally句で発生した例外が送出されてくることを確認する。</li>
-     * <li>ハンドラで発生した例外はワーニングレベルでログ出力されていることを確認する。</li>
+     * <li>ハンドラで発生した例外が送出されてくることを確認する。</li>
+     * <li>finally句で発生した例外はワーニングレベルでログ出力されていることを確認する。</li>
      * </ol>
      *
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void handle_finally_Error() throws Exception {
@@ -408,12 +411,13 @@ public class DbConnectionManagementHandlerOnDbTest {
         try {
             handler.handle(null, context);
             fail("does not run.");
-        } catch (Error e) {
-            assertThat(e.getMessage(), is("error."));
+        } catch (ClassFormatError e) {
+            assertThat(e.getMessage(), is("class format error."));
         }
 
         // 元例外をアサート
-        assertWarnLog("java.lang.ClassFormatError.*class format error.");
+        assertWarnLogCountIs(1);
+        assertWarnLog("java.lang.Error: error.");
 
         // 例外が発生してもスレッドコンテキストから削除されていることを確認
         assertRemoveConnection();
@@ -425,11 +429,11 @@ public class DbConnectionManagementHandlerOnDbTest {
      * ケース内容:ハンドラでRuntimeException、DbConnectionManagementHandlerのfinally句でErrorが発生した場合。<br/>
      * 期待値:<br/>
      * <ol>
-     * <li>finally句で発生した例外が送出されてくることを確認する。</li>
-     * <li>ハンドラで発生した例外はワーニングレベルでログ出力されていることを確認する。</li>
+     * <li>ハンドラで発生した例外が送出されてくることを確認する。</li>
+     * <li>finally句で発生した例外はワーニングレベルでログ出力されていることを確認する。</li>
      * </ol>
      *
-     * @throws Exception
+     * @throws Exception Exception
      */
     @Test
     public void handle_RuntimeException_finally_Error() throws Exception {
@@ -462,13 +466,13 @@ public class DbConnectionManagementHandlerOnDbTest {
         try {
             handler.handle(null, context);
             fail("does not run.");
-        } catch (Error e) {
-            assertThat(e.getMessage(), is("error."));
+        } catch (IndexOutOfBoundsException e) {
+            assertThat(e.getMessage(), is("java.lang.IndexOutOfBoundsException"));
         }
 
         // 元例外をアサート
-        assertWarnLog(
-                "java.lang.IndexOutOfBoundsException.*java.lang.IndexOutOfBoundsException");
+        assertWarnLogCountIs(1);
+        assertWarnLog("java.lang.Error: error.");
 
         // 例外が発生してもスレッドコンテキストから削除されていることを確認
         assertRemoveConnection();
@@ -528,9 +532,30 @@ public class DbConnectionManagementHandlerOnDbTest {
                     "^.*WARN.*DbConnectionManagementHandler.*failed in the "
                             + "application process\\..*" + message + ".*$")) {
                 writeLog = true;
+                break;
             }
         }
         assertThat("元例外がWARNレベルでログに出力されていること", writeLog, is(true));
+    }
+
+
+    /**
+     * ワーニングログの件数をアサートする。
+     *
+     * @param count ログのカウント
+     */
+    private static void assertWarnLogCountIs(int count){
+        List<String> log = OnMemoryLogWriter.getMessages("writer.memory");
+        int warnCount = 0;
+        for (String logMessage : log) {
+            String str = logMessage.replaceAll("[\\r\\n]", "");
+            if (str.matches(
+                    "^.*WARN.*failed in the "
+                            + "application process\\..*$")) {
+                warnCount++;
+            }
+        }
+        assertThat(warnCount, is(count));
     }
 
     /** {@link DbConnectionContext}からコネクションが削除されていることを確認する。 */
@@ -539,6 +564,7 @@ public class DbConnectionManagementHandlerOnDbTest {
             DbConnectionContext.getConnection(TRANSACTION_NAME);
             fail("does not run.");
         } catch (IllegalArgumentException e) {
+            // NOP
         }
     }
 
