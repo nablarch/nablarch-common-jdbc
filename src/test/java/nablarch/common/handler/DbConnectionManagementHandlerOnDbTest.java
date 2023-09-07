@@ -307,6 +307,7 @@ public class DbConnectionManagementHandlerOnDbTest {
         }
 
         // 元例外をアサート
+        assertWarnLogCountIs(1);
         assertWarnLog("java.lang.RuntimeException: terminate error!!!");
 
         // 例外が発生してもスレッドコンテキストから削除されていることを確認
@@ -361,6 +362,7 @@ public class DbConnectionManagementHandlerOnDbTest {
         }
 
         // 元例外をアサート
+        assertWarnLogCountIs(1);
         assertWarnLog("java.lang.RuntimeException: terminate error!!!");
 
         // 例外が発生してもスレッドコンテキストから削除されていることを確認
@@ -414,6 +416,7 @@ public class DbConnectionManagementHandlerOnDbTest {
         }
 
         // 元例外をアサート
+        assertWarnLogCountIs(1);
         assertWarnLog("java.lang.Error: error.");
 
         // 例外が発生してもスレッドコンテキストから削除されていることを確認
@@ -468,8 +471,8 @@ public class DbConnectionManagementHandlerOnDbTest {
         }
 
         // 元例外をアサート
-        assertWarnLog(
-                "java.lang.Error: error.");
+        assertWarnLogCountIs(1);
+        assertWarnLog("java.lang.Error: error.");
 
         // 例外が発生してもスレッドコンテキストから削除されていることを確認
         assertRemoveConnection();
