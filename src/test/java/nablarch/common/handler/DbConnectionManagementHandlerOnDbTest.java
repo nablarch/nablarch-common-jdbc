@@ -219,7 +219,7 @@ public class DbConnectionManagementHandlerOnDbTest {
      * {@link DbConnectionManagementHandler#handle(Object, nablarch.fw.ExecutionContext)}の異常系テスト。
      * <br/>
      * ケース内容:DbConnectionManagementHandlerのfinally句でErrorが発生した場合。<br/>
-     * 期待値:Errorはスローされず正常終了する。<br/>
+     * 期待値:finally句で発生したErrorがthrowされてくる。<br/>
      *
      * @throws Exception Exception
      */
@@ -250,10 +250,14 @@ public class DbConnectionManagementHandlerOnDbTest {
             result = new Error("error.");
         }};
 
-        handler.handle(null, context);
+        try {
+            handler.handle(null, context);
+            fail("does not run.");
+        } catch (Error e) {
+            assertThat(e.getMessage(), is("error."));
+        }
 
-        assertWarnLogCountIs(1);
-        assertWarnLog("java.lang.Error: error.");
+        assertWarnLogCountIs(0);
 
         // スレッドコンテキストから削除されていることを確認
         assertRemoveConnection();
@@ -429,8 +433,8 @@ public class DbConnectionManagementHandlerOnDbTest {
      * ケース内容:ハンドラでRuntimeException、DbConnectionManagementHandlerのfinally句でErrorが発生した場合。<br/>
      * 期待値:<br/>
      * <ol>
-     * <li>ハンドラで発生した例外が送出されてくることを確認する。</li>
-     * <li>finally句で発生した例外はワーニングレベルでログ出力されていることを確認する。</li>
+     * <li>finally句で発生した例外が送出されてくることを確認する。</li>
+     * <li>ハンドラで発生した例外はワーニングレベルでログ出力されていることを確認する。</li>
      * </ol>
      *
      * @throws Exception Exception
@@ -466,13 +470,13 @@ public class DbConnectionManagementHandlerOnDbTest {
         try {
             handler.handle(null, context);
             fail("does not run.");
-        } catch (IndexOutOfBoundsException e) {
-            assertThat(e.getMessage(), is("java.lang.IndexOutOfBoundsException"));
+        } catch (Error e) {
+            assertThat(e.getMessage(), is("error."));
         }
 
         // 元例外をアサート
         assertWarnLogCountIs(1);
-        assertWarnLog("java.lang.Error: error.");
+        assertWarnLog("java.lang.IndexOutOfBoundsException");
 
         // 例外が発生してもスレッドコンテキストから削除されていることを確認
         assertRemoveConnection();
@@ -544,7 +548,7 @@ public class DbConnectionManagementHandlerOnDbTest {
      *
      * @param count ログのカウント
      */
-    private static void assertWarnLogCountIs(int count){
+    private static void assertWarnLogCountIs(int count) {
         List<String> log = OnMemoryLogWriter.getMessages("writer.memory");
         int warnCount = 0;
         for (String logMessage : log) {
