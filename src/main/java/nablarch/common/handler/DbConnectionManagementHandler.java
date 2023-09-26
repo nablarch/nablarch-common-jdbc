@@ -96,11 +96,11 @@ public class DbConnectionManagementHandler implements Handler<Object, Object>, I
             } catch (RuntimeException e) {
                 writeWarnLog(e);
             } catch (Error e) {
-                if(throwable instanceof Error){
+                if (throwable instanceof Error) {
                     writeWarnLog(e);
-                    throw (Error)throwable;
+                    throw (Error) throwable;
                 }
-                if(throwable != null) {
+                if (throwable != null) {
                     writeWarnLog(throwable);
                 }
                 throw e;

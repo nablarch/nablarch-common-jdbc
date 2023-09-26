@@ -548,7 +548,7 @@ public class DbConnectionManagementHandlerOnDbTest {
      *
      * @param count ログのカウント
      */
-    private static void assertWarnLogCountIs(int count){
+    private static void assertWarnLogCountIs(int count) {
         List<String> log = OnMemoryLogWriter.getMessages("writer.memory");
         int warnCount = 0;
         for (String logMessage : log) {
