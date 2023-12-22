@@ -1,13 +1,5 @@
 package nablarch.common.handler;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
-
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
-
 import nablarch.core.db.connection.ConnectionFactory;
 import nablarch.core.db.connection.DbConnectionContext;
 import nablarch.core.db.connection.TransactionManagerConnection;
@@ -18,15 +10,25 @@ import nablarch.test.support.SystemRepositoryResource;
 import nablarch.test.support.db.helper.DatabaseTestRunner;
 import nablarch.test.support.db.helper.VariousDbTestHelper;
 import nablarch.test.support.log.app.OnMemoryLogWriter;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import mockit.Expectations;
-import mockit.Mocked;
-import mockit.Verifications;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * {@link DbConnectionManagementHandler}のテストクラス。
@@ -158,16 +160,14 @@ public class DbConnectionManagementHandlerOnDbTest {
         context.addHandlers(handlers);
 
         // テスト対象クラスを生成
-        final ConnectionFactory factory = repositoryResource.getComponent("connectionFactory");
+        final ConnectionFactory factory = spy((ConnectionFactory)repositoryResource.getComponent("connectionFactory"));
         DbConnectionManagementHandler handler = new DbConnectionManagementHandler();
         handler.setConnectionFactory(factory);
         handler.setConnectionName(TRANSACTION_NAME);
 
-        new Expectations(factory) {{
-            TransactionManagerConnection connection = factory.getConnection(TRANSACTION_NAME);
-            connection.terminate();
-            result = new RuntimeException("terminate error!!!");
-        }};
+        TransactionManagerConnection connection = mock(TransactionManagerConnection.class);
+        when(factory.getConnection(TRANSACTION_NAME)).thenReturn(connection);
+        doThrow(new RuntimeException("terminate error!!!")).when(connection).terminate();
 
         handler.handle(null, context);
 
@@ -237,18 +237,16 @@ public class DbConnectionManagementHandlerOnDbTest {
         ExecutionContext context = new ExecutionContext();
         context.addHandlers(handlers);
 
-        final ConnectionFactory factory = repositoryResource.getComponent("connectionFactory");
+        final ConnectionFactory factory = spy((ConnectionFactory)repositoryResource.getComponent("connectionFactory"));
 
         // テスト対象クラスを生成
         DbConnectionManagementHandler handler = new DbConnectionManagementHandler();
         handler.setConnectionFactory(factory);
         handler.setConnectionName(TRANSACTION_NAME);
 
-        new Expectations(factory) {{
-            final TransactionManagerConnection connection = factory.getConnection(TRANSACTION_NAME);
-            connection.terminate();
-            result = new Error("error.");
-        }};
+        final TransactionManagerConnection connection = mock(TransactionManagerConnection.class);
+        when(factory.getConnection(TRANSACTION_NAME)).thenReturn(connection);
+        doThrow(new Error("error.")).when(connection).terminate();
 
         try {
             handler.handle(null, context);
@@ -292,16 +290,14 @@ public class DbConnectionManagementHandlerOnDbTest {
 
 
         // テスト対象クラスを生成
-        final ConnectionFactory factory = repositoryResource.getComponent("connectionFactory");
+        final ConnectionFactory factory = spy((ConnectionFactory)repositoryResource.getComponent("connectionFactory"));
         DbConnectionManagementHandler handler = new DbConnectionManagementHandler();
         handler.setConnectionFactory(factory);
         handler.setConnectionName(TRANSACTION_NAME);
 
-        new Expectations(factory) {{
-            final TransactionManagerConnection connection = factory.getConnection(TRANSACTION_NAME);
-            connection.terminate();
-            result = new RuntimeException("terminate error!!!");
-        }};
+        final TransactionManagerConnection connection = mock(TransactionManagerConnection.class);
+        when(factory.getConnection(TRANSACTION_NAME)).thenReturn(connection);
+        doThrow(new RuntimeException("terminate error!!!")).when(connection).terminate();
 
         try {
             handler.handle(null, context);
@@ -347,16 +343,14 @@ public class DbConnectionManagementHandlerOnDbTest {
 
 
         // テスト対象クラスを生成
-        final ConnectionFactory factory = repositoryResource.getComponent("connectionFactory");
+        final ConnectionFactory factory = spy((ConnectionFactory)repositoryResource.getComponent("connectionFactory"));
         DbConnectionManagementHandler handler = new DbConnectionManagementHandler();
         handler.setConnectionFactory(factory);
         handler.setConnectionName(TRANSACTION_NAME);
 
-        new Expectations(factory) {{
-            final TransactionManagerConnection connection = factory.getConnection(TRANSACTION_NAME);
-            connection.terminate();
-            result = new RuntimeException("terminate error!!!");
-        }};
+        final TransactionManagerConnection connection = mock(TransactionManagerConnection.class);
+        when(factory.getConnection(TRANSACTION_NAME)).thenReturn(connection);
+        doThrow(new RuntimeException("terminate error!!!")).when(connection).terminate();
 
         try {
             handler.handle(null, context);
@@ -401,16 +395,14 @@ public class DbConnectionManagementHandlerOnDbTest {
         context.addHandlers(handlers);
 
         // テスト対象クラスを生成
-        final ConnectionFactory factory = repositoryResource.getComponent("connectionFactory");
+        final ConnectionFactory factory = spy((ConnectionFactory)repositoryResource.getComponent("connectionFactory"));
         DbConnectionManagementHandler handler = new DbConnectionManagementHandler();
         handler.setConnectionFactory(factory);
         handler.setConnectionName(TRANSACTION_NAME);
 
-        new Expectations(factory) {{
-            final TransactionManagerConnection connection = factory.getConnection(TRANSACTION_NAME);
-            connection.terminate();
-            result = new Error("error.");
-        }};
+        final TransactionManagerConnection connection = mock(TransactionManagerConnection.class);
+        when(factory.getConnection(TRANSACTION_NAME)).thenReturn(connection);
+        doThrow(new Error("error.")).when(connection).terminate();
 
         try {
             handler.handle(null, context);
@@ -456,16 +448,14 @@ public class DbConnectionManagementHandlerOnDbTest {
         context.addHandlers(handlers);
 
         // テスト対象クラスを生成
-        final ConnectionFactory factory = repositoryResource.getComponent("connectionFactory");
+        final ConnectionFactory factory = spy((ConnectionFactory)repositoryResource.getComponent("connectionFactory"));
         DbConnectionManagementHandler handler = new DbConnectionManagementHandler();
         handler.setConnectionFactory(factory);
         handler.setConnectionName(TRANSACTION_NAME);
 
-        new Expectations(factory) {{
-            final TransactionManagerConnection connection = factory.getConnection(TRANSACTION_NAME);
-            connection.terminate();
-            result = new Error("error.");
-        }};
+        final TransactionManagerConnection connection = mock(TransactionManagerConnection.class);
+        when(factory.getConnection(TRANSACTION_NAME)).thenReturn(connection);
+        doThrow(new Error("error.")).when(connection).terminate();
 
         try {
             handler.handle(null, context);
@@ -487,17 +477,13 @@ public class DbConnectionManagementHandlerOnDbTest {
      * また、この場合には{@link ConnectionFactory#getConnection(String)}が呼び出されないことを検証する。
      */
     @Test
-    public void connectionNameAlreadyUsed(@Mocked TransactionManagerConnection mockConnection) throws Exception {
+    public void connectionNameAlreadyUsed() throws Exception {
+        TransactionManagerConnection mockConnection = mock(TransactionManagerConnection.class);
 
         ExecutionContext context = new ExecutionContext();
 
         // テスト対象クラスを生成
-        final ConnectionFactory factory = repositoryResource.getComponent("connectionFactory");
-        new Expectations(factory) {{
-            factory.getConnection(TRANSACTION_NAME);
-            minTimes = 0;
-        }};
-
+        final ConnectionFactory factory = spy((ConnectionFactory)repositoryResource.getComponent("connectionFactory"));
 
         DbConnectionManagementHandler handler = new DbConnectionManagementHandler();
         handler.setConnectionFactory(factory);
@@ -515,11 +501,8 @@ public class DbConnectionManagementHandlerOnDbTest {
             DbConnectionContext.removeConnection(TRANSACTION_NAME);
         }
 
-        new Verifications() {{
-            // 既に登録済みのコネクション名なので新たなコネクションを取得しないことを検証する。
-            factory.getConnection(anyString);
-            times = 0;
-        }};
+        // 既に登録済みのコネクション名なので新たなコネクションを取得しないことを検証する。
+        verify(factory, never()).getConnection(anyString());
     }
 
     /**

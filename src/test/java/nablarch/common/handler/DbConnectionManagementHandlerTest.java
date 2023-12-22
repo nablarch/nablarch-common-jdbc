@@ -1,27 +1,27 @@
 package nablarch.common.handler;
 
-import mockit.Expectations;
-import mockit.Mocked;
-import mockit.Verifications;
 import nablarch.core.db.connection.ConnectionFactory;
 import nablarch.core.db.connection.DbConnectionContext;
 import nablarch.fw.ExecutionContext;
 import nablarch.fw.Result;
-
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DbConnectionManagementHandlerTest {
 
     private DbConnectionManagementHandler target = new DbConnectionManagementHandler();
 
-    @Mocked
-    private ConnectionFactory connectionFactory;
+    private final ConnectionFactory connectionFactory = mock(ConnectionFactory.class, RETURNS_DEEP_STUBS);
 
-    @Mocked
-    private ExecutionContext context = new ExecutionContext();
+    private final ExecutionContext context = mock(ExecutionContext.class);
 
     @Before
     public void setup() {
@@ -34,26 +34,20 @@ public class DbConnectionManagementHandlerTest {
     public void testHandle() {
         {
             // 正常系
-            new Expectations() {{
-                context.handleNext(null);
-                result = new Result.Success();
-            }};        
+            when(context.handleNext(null)).thenReturn(new Result.Success());
             
             assertTrue(((Result) target.handle(null, context)).isSuccess());
     
-            new Verifications() {{
-                connectionFactory.getConnection("connection");
-                times = 1;
-            }};
+            verify(connectionFactory).getConnection("connection");
         }
 
 
         {
+            reset(connectionFactory);
+            reset(context);
+            
             // コンテキストにすでにコネクションが登録されていた場合
-            new Expectations() {{
-                context.handleNext(null);
-                result = new Result.Success();
-            }};        
+            when(context.handleNext(null)).thenReturn(new Result.Success());
             
             DbConnectionContext.setConnection("connection", connectionFactory.getConnection("connection"));
             
@@ -63,21 +57,19 @@ public class DbConnectionManagementHandlerTest {
             } catch (IllegalStateException e) {
                 
             }
-            new Verifications() {{
-                connectionFactory.getConnection("connection");
-                times = 1;
-            }};
+            
+            verify(connectionFactory).getConnection("connection");
     
             DbConnectionContext.removeConnection("connection");
 
         }        
 
         {
+            reset(connectionFactory);
+            reset(context);
+            
             // 後続のハンドラで RuntimeException
-            new Expectations() {{
-                context.handleNext(null);
-                result = new RuntimeException("test");
-            }};        
+            when(context.handleNext(null)).thenThrow(new RuntimeException("test"));
             
             try {
                 assertTrue(((Result) target.handle(null, context)).isSuccess());
@@ -85,18 +77,16 @@ public class DbConnectionManagementHandlerTest {
             } catch (RuntimeException e) {
                 
             }
-            new Verifications() {{
-                connectionFactory.getConnection("connection");
-                times = 1;
-            }};
+            
+            verify(connectionFactory).getConnection("connection");
         }
 
         {
+            reset(connectionFactory);
+            reset(context);
+
             // 後続のハンドラで Error
-            new Expectations() {{
-                context.handleNext(null);
-                result = new Error("test");
-            }};        
+            when(context.handleNext(null)).thenThrow(new Error("test"));
             
             try {
                 assertTrue(((Result) target.handle(null, context)).isSuccess());
@@ -104,10 +94,8 @@ public class DbConnectionManagementHandlerTest {
             } catch (Error e) {
                 
             }
-            new Verifications() {{
-                connectionFactory.getConnection("connection");
-                times = 1;
-            }};
+            
+            verify(connectionFactory).getConnection("connection");
         }        
 
     }
@@ -117,10 +105,7 @@ public class DbConnectionManagementHandlerTest {
         
         assertTrue(target.handleInbound(context).isSuccess());
 
-        new Verifications() {{
-            connectionFactory.getConnection("connection");
-            times = 1;
-        }};
+        verify(connectionFactory).getConnection("connection");
     }
 
     @Test
